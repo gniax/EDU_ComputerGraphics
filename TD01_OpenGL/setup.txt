@@ -1,0 +1,4 @@
+DL binaries https://glew.sourceforge.net/index.html
+DL binaries 64 w https://www.glfw.org/download.html
+
+On extrait les deux 
