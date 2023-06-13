@@ -1,179 +1,336 @@
 // GLEW STATIC indique qu'on utilise la librairie gllew32s
 #define GLEW_STATIC 1
+#define TINYOBJLOADER_IMPLEMENTATION
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+
+#include "../common/Camera.h"
+#include "../common/Object3D.h"
+#include "../common/Texture.h"
+#include "../common/Shader.h"
+
 #include <iostream>
+#include <vector>
 
 // Inutile dans mon cas car je suis sur NVIDIA
 extern "C"
 {
-    _declspec(dllexport) uint32_t NvOptimusEnablement = 0x00000001; 
+    _declspec(dllexport) uint32_t NvOptimusEnablement = 0x00000001;
 }
 
-struct MyApplication
+// Caméra
+Camera g_Camera;
+
+// Objet 3D
+Object3D g_Object1;
+Object3D g_Object2;
+Object3D g_Object3;
+
+Shader g_Shader1;
+Shader g_Shader2;
+Shader g_Shader3;
+
+// Texture
+Texture g_Texture("container.jpg");
+
+// Dimensions initiales de la fenêtre
+int g_WindowSizeX = 800;
+int g_WindowSizeY = 600;
+
+// Pointeur sur la fenêtre principale
+GLFWwindow* g_Window = NULL;
+
+// Méthode pour gérer les erreurs de GLFW
+static void ErrorCallback(int error, const char* description)
 {
-    // Attributs
-    int _width;
-    int _height;
+    std::cerr << "GLFW Error " << error << ": " << description << std::endl;
+}
 
-    // Définit la size
-    inline void setSize(int pWidth, int pHeight)
-    {
-        _width = pWidth;
-        _height = pHeight;
-    }
-
-    // Initialisation - a appeler au debut
-    bool initialize()
-    {
-        std::cout << "Carte Graphique : " << glGetString(GL_RENDERER) << std::endl;
-        std::cout << "Version OpenGL : " << glGetString(GL_VERSION) << std::endl;
-        std::cout << "Version GLSL : " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-        //std::cout << "Extensions disponibles : " << glGetString(GL_EXTENSIONS) << std::endl;
-        
-        // Afficher une extension précise à un index:
-        int numExtensions = 0;
-        glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-        for (int i = 0; i < numExtensions; ++i)
-        {
-            std::cout << "Extensions[" << i << "] : " << glGetStringi(GL_EXTENSIONS, i) << std::endl;
-        }
-
-        return true;
-    }
-
-    // TODO
-    void deinitialize()
-    {
-        // ...
-    }
-
-    // Tout le contenu de rendu
-    void render()
-    {
-        // Définir la taille des viewports
-        int viewportWidth = _width / 2;
-        int viewportHeight = _height / 2;
-
-        static const float triangles[] = {
-            -0.8f, +0.8f, // sommet #0
-            +0.0f, -0.8f, // sommet #1
-            +0.8f, +0.8f  // sommet #2
-        };
-
-        static const float colors[] = {
-            1.0f, 1.0f, 1.0f, // sommet #0
-            0.0f, 1.0f, 0.0f, // sommet #1
-            0.0f, 0.0f, 1.0f  // sommet #2
-        };
-        
-        // On définit nos canaux 'position' et 'color'
-        // Note: dépend du GPU 'NVIDIA', 'AMD'...
-        static constexpr uint32_t POSITION = 0;
-        static constexpr uint32_t COLOR = 3;
-
-        glEnableVertexAttribArray(POSITION);
-        // on active la fonctionnalite scissor
-        glEnable(GL_SCISSOR_TEST);
-        //glEnable(GL_CULL_FACE); // active la suppresion des faces cachees (par defaut sens horaire)
-        //glFrontFace(GL_CCW);
-
-        // Définir le viewport pour le premier écran en haut à gauche
-        glViewport(0, viewportHeight, viewportWidth, viewportHeight);
-        glScissor(0, viewportHeight, viewportWidth, viewportHeight);
-        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);        
-        
-        // On va créer un triangle avec des couleurs dans ce premier VP
-        {
-            // si le contenu des donnes est un tableau il faut le dire a OpenGL avec glEnableVertexAttribArray()
-            glEnableVertexAttribArray(POSITION);
-            // Les paramètres de cette fonction sont les suivants :
-            // index: Le numéro du canal de données des vertex(location).
-            // size : Le nombre de composantes pour chaque vertex.Par exemple, pour les positions en 3D, size est égal à 3.
-            // type : Le type de données pour chaque composante.Les types les plus couramment utilisés sont GL_FLOAT pour les données à virgule flottante, GL_INT pour les données entières et GL_UNSIGNED_BYTE pour les données de couleurs en RGBA.
-            // normalized : Un booléen indiquant si les données doivent être normalisées ou pas.Si normalized est vrai, les données sont normalisées entre 0 et 1 ou - 1 et 1, en fonction du type de données.
-            // stride : L'espacement en octets entre chaque vertex dans le tableau des vertex
-            // pointer : Le pointeur vers le début des données pour le canal.
-            glVertexAttribPointer(POSITION, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), &triangles[0]);
-
-            // On set les couleurs avant de draw les triangles pour que ça soit pris en compte
-            glEnableVertexAttribArray(COLOR);
-            glVertexAttribPointer(COLOR, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), colors);
-            // Puis on draw les triangles
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
-
-        // Définir le viewport pour le deuxième écran en haut à droite
-        glViewport(viewportWidth, viewportHeight, viewportWidth, viewportHeight);
-        glScissor(viewportWidth, viewportHeight, viewportWidth, viewportHeight);
-        glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Définir le viewport pour le troisième écran en bas à gauche
-        glViewport(0, 0, viewportWidth, viewportHeight);
-        glScissor(0, 0, viewportWidth, viewportHeight);
-        glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Définir le viewport pour le quatrième écran en bas à droite
-        glViewport(viewportWidth, 0, viewportWidth, viewportHeight);
-        glScissor(viewportWidth, 0, viewportWidth, viewportHeight);
-        glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glDisable(GL_SCISSOR_TEST);
-    }
-};
-
-int main(void)
+// Méthode pour gérer le redimensionnement de la fenêtre
+static void WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
-    GLFWwindow* window;
-    MyApplication myApp;
+    g_WindowSizeX = width;
+    g_WindowSizeY = height;
 
-    /* Initialize the library */
+    // On ajuste le viewport quand la fenêtre est redimensionnée
+    glViewport(0, 0, width, height);
+}
+
+void MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    static float lastX = 400, lastY = 300;
+    static bool firstMouse = true;
+
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    const float sensitivity = 0.05f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    float lYaw = g_Camera.getYaw();
+    float lPitch = g_Camera.getPitch();
+
+    g_Camera.setYaw(lYaw + xoffset);
+    g_Camera.setPitch(lPitch + yoffset);
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (lPitch + yoffset > 89.0f)
+        g_Camera.setPitch(89.0f);
+    if (lPitch + yoffset < -89.0f)
+        g_Camera.setPitch(-89.0f);
+
+    g_Camera.updateViewMatrix();
+}
+
+
+// Méthode pour gérer les entrées du clavier
+static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    const float cameraSpeed = 0.15f; // ajustez la vitesse au besoin
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+        g_Camera.move(cameraSpeed * glm::vec3(0.0f, 0.0f, -1.0f)); // avant
+    if (key == GLFW_KEY_S && action == GLFW_PRESS)
+        g_Camera.move(cameraSpeed * glm::vec3(0.0f, 0.0f, 1.0f)); // arrière
+    if (key == GLFW_KEY_A && action == GLFW_PRESS)
+        g_Camera.move(cameraSpeed * glm::vec3(-1.0f, 0.0f, 0.0f)); // gauche
+    if (key == GLFW_KEY_D && action == GLFW_PRESS)
+        g_Camera.move(cameraSpeed * glm::vec3(1.0f, 0.0f, 0.0f)); // droite
+}
+
+// Methode pour initialiser GLFW et GLEW
+bool InitOpenGL()
+{
+    // Initialisation de la bibliothèque GLFW
+    glfwSetErrorCallback(ErrorCallback);
+
     if (!glfwInit())
-        return -1;
-
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
     {
-        glfwTerminate();
+        std::cerr << "Failed to initialize GLFW." << std::endl;
+        return false;
+    }
+
+    // Creation d'une fenêtre avec GLFW
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    g_Window = glfwCreateWindow(g_WindowSizeX, g_WindowSizeY, "OpenGL Course", NULL, NULL);
+
+    if (g_Window == NULL)
+    {
+        std::cerr << "Failed to create GLFW window." << std::endl;
+        return false;
+    }
+
+    // Capture the mouse cursor
+    glfwSetKeyCallback(g_Window, KeyCallback);
+    glfwSetCursorPosCallback(g_Window, MouseCallback);
+
+    // Definition du contexte OpenGL a utiliser par GLFW
+    glfwMakeContextCurrent(g_Window);
+    glfwSetWindowSizeCallback(g_Window, WindowSizeCallback);
+
+    // Initialisation de la bibliothèque GLEW
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "Failed to initialize GLEW." << std::endl;
+        return false;
+    }
+
+    // Affichage de la version d'OpenGL utilisee
+    std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
+
+    // Definition du mode de remplissage
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Definition de la couleur de fond
+    glClearColor(0.25f, 0.45f, 0.75f, 1.0f);
+
+    // Activation du z-buffer
+    glEnable(GL_DEPTH_TEST);
+
+    // Compilation des shaders
+    g_Shader3 = Shader("basic");
+    if (!g_Shader3.LoadVertexShader("shaders/basic.vs.glsl") ||
+        !g_Shader3.LoadFragmentShader("shaders/basic.fs.glsl") ||
+        !g_Shader3.Create())
+    {
+        std::cerr << "Failed to create basic shader." << std::endl;
+        return false;
+    }
+
+    g_Shader2 = Shader("blinnphong");
+    if (!g_Shader2.LoadVertexShader("shaders/blinnphong.vs.glsl") ||
+        !g_Shader2.LoadFragmentShader("shaders/blinnphong.fs.glsl") ||
+        !g_Shader2.Create())
+    {
+        std::cerr << "Failed to create blinnphong shader." << std::endl;
+        return false;
+    }
+
+    g_Shader1 = Shader("phong");
+    if (!g_Shader1.LoadVertexShader("shaders/phong.vs.glsl") ||
+        !g_Shader1.LoadFragmentShader("shaders/phong.fs.glsl") ||
+        !g_Shader1.Create())
+    {
+        std::cerr << "Failed to create phong shader." << std::endl;
+        return false;
+    }
+
+
+    // Charger les objets 3D
+    if (!g_Object1.LoadFromFile("cube.obj")) {
+        std::cerr << "Failed to load the 3D object 1." << std::endl;
+        return false;
+    }
+    g_Object1.BindShader(g_Shader1);
+    g_Object1.SetPosition(glm::vec3(0.05f, -0.05f, 2.5f));
+    g_Object1.SetScale(0.05f); // réduit la taille du cube de /3
+
+    //if (!g_Object2.LoadFromFile("cornell_box.obj")) {
+    //    std::cerr << "Failed to load the 3D object 2." << std::endl;
+    //    return false;
+    //}
+    //g_Object2.BindShader(g_Shader2);
+    //g_Object2.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f)); // déplace l'objet en (0, 0, -5)
+    //g_Object2.SetScale(0.3f); // réduit la taille du cube de /3
+
+    //if (!g_Object3.LoadFromFile("cornell_box.obj")) {
+    //    std::cerr << "Failed to load the 3D object 3." << std::endl;
+    //    return false;
+    //}
+    //g_Object3.BindShader(g_Shader3);
+    //g_Object3.SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+    //g_Object3.SetScale(0.5f); // réduit la taille du cube de /3
+
+
+    // Charger la texture
+    if (!g_Texture.LoadTexture()) {
+        std::cerr << "Failed to load the texture." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+void DrawObject(Object3D &pObject)
+{
+    Shader lShader = pObject.GetShader();
+    // Utilisation du shader
+    lShader.use();
+
+    std::string shaderName = lShader.getName();
+    if (shaderName == "basic")
+    {
+        // Basic Shader - we only modify the color
+        lShader.setVec4("v_Color", glm::vec4(1.0f, 0.5f, 0.31f, 1.0f));
+    }
+    else if (shaderName == "blinnphong")
+    {
+        // BlinnPhong Shader
+        lShader.setVec3("u_LightDirection", glm::vec3(1.0f, 1.0f, 1.0f));
+        lShader.setVec3("u_Material.DiffuseColor", glm::vec3(0.8f, 0.8f, 0.8f));
+        lShader.setVec3("u_Material.SpecularColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        lShader.setFloat("u_Material.Shininess", 32.0f);
+    }
+    else if (shaderName == "phong")
+    {
+        // Phong Shader
+        lShader.setVec3("viewPos", g_Camera.getPosition());
+        lShader.setVec3("light.position", glm::vec3(1.0f, 1.0f, 1.0f));
+        lShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        lShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        lShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        lShader.setInt("material.diffuse", 0);
+        lShader.setInt("material.specular", 1);
+        lShader.setFloat("material.shininess", 32.0f);
+        lShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        lShader.setVec3("lightPos", glm::vec3(2.0f, 2.0f, 2.0f));
+    }
+
+    glm::mat4 model = pObject.GetTransformation();
+    glm::mat4 view = g_Camera.getViewMatrix();
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)g_WindowSizeX / (float)g_WindowSizeY, 0.1f, 100.0f);
+
+    lShader.setMat4("model", model);
+    lShader.setMat4("view", view);
+    lShader.setMat4("projection", projection);
+
+    // Utilisation de la texture
+    g_Texture.UseTexture(); // cela doit binder la texture sur l'unité de texture GL_TEXTURE0
+
+    // Dessin de l'objet
+    pObject.Draw();
+}
+//
+//void DrawObject()
+//{
+//    // Utilisation du shader
+//    g_Shader.use();
+//
+//    // Définition des uniforms pour le shader
+//    g_Shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+//    g_Shader.setVec3("lightPos", glm::vec3(2.0f, 2.0f, 2.0f));
+//    g_Shader.setVec3("viewPos", g_Camera.getPosition());
+//
+//    // Matrices de modèle, de vue et de projection
+//    glm::mat4 model = glm::mat4(1.0f);
+//    glm::mat4 view = g_Camera.getViewMatrix();
+//    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)g_WindowSizeX / (float)g_WindowSizeY, 0.1f, 100.0f);
+//
+//    g_Shader.setMat4("model", model);
+//    g_Shader.setMat4("view", view);
+//    g_Shader.setMat4("projection", projection);
+//
+//    // Utilisation de la texture
+//    g_Texture.UseTexture();
+//
+//    // Dessin de l'objet
+//    g_Object1.Draw();
+//}
+
+int main(int argc, char** argv)
+{
+    if (!InitOpenGL())
+    {
+        std::cerr << "Failed to initialize OpenGL." << std::endl;
         return -1;
     }
 
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-
-    GLenum error = glewInit();
-
-    // A partir de maintenant, on peut utiliser des commandes OpenGL
-    if (!myApp.initialize())
+    // Boucle principale de notre application
+    while (!glfwWindowShouldClose(g_Window))
     {
-        return -1;
-    }
+        // Nettoyage du color buffer et du depth buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        // gere le dimensionnement de la fenetre
-        int width, height;
-        glfwGetWindowSize(window, &width, &height);
-        myApp.setSize(width, height);
+        // Dessin du contenu...
+        //DrawObject();
+        DrawObject(g_Object1);
+        /*DrawObject(g_Object2);
+        DrawObject(g_Object3);*/
 
-        // rendu
-        myApp.render();
+        // Echange des buffers (double buffering)
+        glfwSwapBuffers(g_Window);
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
+        // Traitement des evenements GLFW
         glfwPollEvents();
     }
 
-    myApp.deinitialize();
-
+    // Destruction de la fenêtre et fin du programme
+    glfwDestroyWindow(g_Window);
     glfwTerminate();
+
     return 0;
 }

@@ -13,13 +13,62 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fichiers sources\shaders">
+      <UniqueIdentifier>{d597dab3-89e3-4696-9776-e030497adf71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpenGL_101.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="GLShader.cpp">
+    <ClCompile Include="..\common\Camera.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\Object3D.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\Shader.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\Texture.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\Camera.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\Object3D.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\Shader.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\Texture.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\stb_image\stb_image.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\basic.fs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
+    <None Include="shaders\basic.vs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
+    <None Include="shaders\blinnphong.fs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
+    <None Include="shaders\blinnphong.vs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
+    <None Include="shaders\phong.fs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
+    <None Include="shaders\phong.vs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
