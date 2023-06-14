@@ -2,7 +2,7 @@
 #include <gtc/matrix_transform.hpp>
 
 Camera::Camera()
-    : position(0.0f, 0.0f, 3.0f), UP(0.0f, 1.0f, 0.0f), yaw(-90.0f), pitch(0.0f)
+    : position(0.0f, 0.0f, 3.0f), UP(0.0f, 1.0f, 0.0f), yaw(-90.0f), pitch(0.0f), fov(45.0f)
 {
     updateViewMatrix();
 }
@@ -32,15 +32,30 @@ glm::vec3 Camera::getRight() const
     return glm::normalize(glm::cross(getFront(), UP));
 }
 
+glm::mat4 Camera::getProjectionMatrix(int width, int height) {
+    // Use the current fov value to create a perspective matrix
+    return glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
+}
 
-float Camera::getPitch()
+void Camera::zoom(float pAmount)
+{
+    fov -= pAmount;
+    fov = glm::clamp(fov, 1.0f, 45.0f); // limit fov to between 1 and 45 degrees
+}
+
+float Camera::getPitch() const
 {
     return pitch;
 }
 
-float Camera::getYaw()
+float Camera::getYaw() const
 {
     return yaw;
+}
+
+float Camera::getFov() const
+{
+    return fov;
 }
 
 void Camera::setPitch(float pPitch)

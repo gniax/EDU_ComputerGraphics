@@ -33,6 +33,9 @@
     <ClCompile Include="..\common\Texture.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\Grid3D.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\Camera.h">
@@ -48,6 +51,9 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="..\libs\stb_image\stb_image.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\Grid3D.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,6 +74,12 @@
       <Filter>Fichiers sources\shaders</Filter>
     </None>
     <None Include="shaders\phong.vs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
+    <None Include="shaders\grid.fs.glsl">
+      <Filter>Fichiers sources\shaders</Filter>
+    </None>
+    <None Include="shaders\grid.vs.glsl">
       <Filter>Fichiers sources\shaders</Filter>
     </None>
   </ItemGroup>

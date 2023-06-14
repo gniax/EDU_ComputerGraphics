@@ -4,6 +4,7 @@
 #include <GL/glew.h> 
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
+#include <gtc/quaternion.hpp>
 #include "Shader.h"
 #include "../libs/tinyobjloader/tiny_obj_loader.h"
 
@@ -30,6 +31,8 @@ public:
     bool LoadFromFile(const std::string& filename);
 
     std::string GetType();
+    glm::quat GetRotation() const;
+    glm::vec3 GetPosition() const;
     Shader& GetShader();
     void BindShader(Shader& pShader);
 

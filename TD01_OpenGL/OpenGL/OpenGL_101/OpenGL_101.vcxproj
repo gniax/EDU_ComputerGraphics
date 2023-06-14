@@ -139,6 +139,7 @@ xcopy /y "$(SolutionDir)libs\glew\bin\Release\x64\glew32.dll" "$(OutDir)"
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\Camera.cpp" />
+    <ClCompile Include="..\common\Grid3D.cpp" />
     <ClCompile Include="..\common\Object3D.cpp" />
     <ClCompile Include="..\common\Shader.cpp" />
     <ClCompile Include="..\common\Texture.cpp" />
@@ -146,6 +147,7 @@ xcopy /y "$(SolutionDir)libs\glew\bin\Release\x64\glew32.dll" "$(OutDir)"
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\Camera.h" />
+    <ClInclude Include="..\common\Grid3D.h" />
     <ClInclude Include="..\common\Object3D.h" />
     <ClInclude Include="..\common\Shader.h" />
     <ClInclude Include="..\common\Texture.h" />
@@ -156,6 +158,8 @@ xcopy /y "$(SolutionDir)libs\glew\bin\Release\x64\glew32.dll" "$(OutDir)"
     <None Include="shaders\basic.vs.glsl" />
     <None Include="shaders\blinnphong.fs.glsl" />
     <None Include="shaders\blinnphong.vs.glsl" />
+    <None Include="shaders\grid.fs.glsl" />
+    <None Include="shaders\grid.vs.glsl" />
     <None Include="shaders\phong.fs.glsl" />
     <None Include="shaders\phong.vs.glsl" />
   </ItemGroup>
