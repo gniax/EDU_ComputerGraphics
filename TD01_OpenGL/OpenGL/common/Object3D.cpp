@@ -94,7 +94,7 @@ bool Object3D::LoadFromFile(const std::string& filename)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     return true;
 }
 
@@ -108,29 +108,21 @@ Shader& Object3D::GetShader()
     return shader;
 }
 
-void Object3D::BindShader(Shader& pShader) {
-    shader = pShader;
-}
-
 void Object3D::ResetRotation() 
 {
-    transformation = glm::mat4(1.0f); // Réinitialiser la transformation à la matrice identité
+    transformation = glm::mat4(1.0f); // reset la transformation a la matrice identité
 }
 
-// Pour récupérer la position, vous pouvez simplement extraire la colonne de translation de la matrice de transformation
 glm::vec3 Object3D::GetPosition() const {
     return glm::vec3(transformation[3]);
 }
 
-// Pour obtenir la rotation, c'est un peu plus complexe car la matrice de transformation contient à la fois la rotation et l'échelle.
-// Si vous ne faites pas d'échelle non-uniforme (c'est-à-dire, si vous échellez uniformément sur tous les axes), alors vous pouvez extraire la rotation ainsi:
 glm::quat Object3D::GetRotation() const {
     return glm::quat_cast(transformation);
 }
 
 void Object3D::SetRotation(float angle, const glm::vec3& axis) 
 {
-    ResetRotation(); // Optionnel : réinitialiser la rotation
     transformation = glm::rotate(transformation, glm::radians(angle), axis);
 }
 
@@ -148,7 +140,7 @@ const glm::mat4& Object3D::GetTransformation() const {
 
 void Object3D::Draw()
 {
-    // Vérifier si le VAO est valide
+    // VAO est valide?
     if (VAO == 0)
     {
         std::cerr << "Failed to draw the object. VAO is not initialized." << std::endl;

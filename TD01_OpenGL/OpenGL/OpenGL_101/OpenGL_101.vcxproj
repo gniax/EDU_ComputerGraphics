@@ -148,9 +148,11 @@ xcopy /y "$(SolutionDir)libs\glew\bin\Release\x64\glew32.dll" "$(OutDir)"
   <ItemGroup>
     <ClInclude Include="..\common\Camera.h" />
     <ClInclude Include="..\common\Grid3D.h" />
+    <ClInclude Include="..\common\Material.h" />
     <ClInclude Include="..\common\Object3D.h" />
     <ClInclude Include="..\common\Shader.h" />
     <ClInclude Include="..\common\Texture.h" />
+    <ClInclude Include="..\common\Vertex.h" />
     <ClInclude Include="..\libs\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>

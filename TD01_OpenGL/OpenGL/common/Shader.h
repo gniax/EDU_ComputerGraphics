@@ -29,7 +29,6 @@ public:
     void setFloat(const std::string& name, float value);
     void setInt(const std::string& name, int value);
     // autres setters pour d'autres types d'uniformes, si nécessaire...
-
     bool LoadVertexShader(const char* filename);
     bool LoadGeometryShader(const char* filename);
     bool LoadFragmentShader(const char* filename);

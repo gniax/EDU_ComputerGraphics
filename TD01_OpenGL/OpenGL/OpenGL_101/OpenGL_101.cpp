@@ -1,3 +1,12 @@
+// -----------------
+// CONTROLES :
+// 
+// Z Q S D
+// Clic droit de souris pour rotate la camera
+// Zoom possible avec molette
+// 
+// --
+// 
 // GLEW STATIC indique qu'on utilise la librairie gllew32s
 #define GLEW_STATIC 1
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -40,19 +49,19 @@ Shader g_GridShader;
 Texture g_Texture("dragon.png");
 
 // Dimensions initiales de la fenêtre
-int g_WindowSizeX = 800;
-int g_WindowSizeY = 600;
+int g_WindowSizeX = 1200;
+int g_WindowSizeY = 800;
 
 // Pointeur sur la fenêtre principale
 GLFWwindow* g_Window = NULL;
 
-// Méthode pour gérer les erreurs de GLFW
+//Gerer les erreurs de GLFW
 static void ErrorCallback(int error, const char* description)
 {
     std::cerr << "GLFW Error " << error << ": " << description << std::endl;
 }
 
-// Méthode pour gérer le redimensionnement de la fenêtre
+// Gerer le redimensionnement de la fenetre
 static void WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
     g_WindowSizeX = width;
@@ -62,7 +71,7 @@ static void WindowSizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-// Variable pour suivre si le bouton droit de la souris est enfoncé
+// Suivre si le bouton droit de la souris est enfoncé
 bool g_RightMouseButtonDown = false;
 
 // Callback pour le bouton de la souris
@@ -96,7 +105,7 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
     }
 
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    float yoffset = lastY - ypos; // bottom vers top
 
     lastX = xpos;
     lastY = ypos;
@@ -113,7 +122,7 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
         g_Camera.setYaw(lYaw + xoffset);
         g_Camera.setPitch(lPitch + yoffset);
 
-        // make sure that when pitch is out of bounds, screen doesn't get flipped
+        // on evite que l'ecran se retourne
         if (lPitch + yoffset > 89.0f)
             g_Camera.setPitch(89.0f);
         if (lPitch + yoffset < -89.0f)
@@ -125,10 +134,10 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 
 
 
-// Méthode pour gérer les entrées du clavier
+// Gérer les entrées du clavier
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    const float cameraSpeed = 0.75f; // ajustez la vitesse au besoin
+    const float cameraSpeed = 0.75f;
     if (key == GLFW_KEY_W && action == GLFW_PRESS)
         g_Camera.move(cameraSpeed * glm::vec3(0.0f, 0.0f, -1.0f)); // avant
     if (key == GLFW_KEY_S && action == GLFW_PRESS)
@@ -139,10 +148,10 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
         g_Camera.move(cameraSpeed * glm::vec3(1.0f, 0.0f, 0.0f)); // droite
 }
 
-// Methode pour initialiser GLFW et GLEW
+// Initialiser GLFW et GLEW
 bool InitOpenGL()
 {
-    // Initialisation de la bibliothèque GLFW
+    // Initialisation avec GLFW
     glfwSetErrorCallback(ErrorCallback);
 
     if (!glfwInit())
@@ -231,29 +240,25 @@ bool InitOpenGL()
         return false;
     }
 
-    // Charger les objets 3D
+    // charger les objets 3D
     if (!g_Object1.LoadFromFile("cube.obj")) {
         std::cerr << "Failed to load the 3D object 1." << std::endl;
         return false;
     }
-    g_Object1.BindShader(g_Shader1);
-    //g_Object1.SetScale(5.0f); // réduit la taille du cube de /3
+    g_Object1.SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
+    g_Object1.SetRotation(45, glm::vec3(1.0f, 1.0f, 1.0f)); // on tourne celui-ci par exemple
 
     if (!g_Object2.LoadFromFile("cube.obj")) {
         std::cerr << "Failed to load the 3D object 2." << std::endl;
         return false;
     }
-    g_Object2.BindShader(g_Shader2);
-    g_Object2.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f)); // déplace l'objet en (0, 0, -5)
-    //g_Object2.SetScale(0.3f); // réduit la taille du cube de /3
+    g_Object2.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f)); 
 
     if (!g_Object3.LoadFromFile("cube.obj")) {
         std::cerr << "Failed to load the 3D object 3." << std::endl;
         return false;
     }
-    g_Object3.BindShader(g_Shader3);
-    g_Object3.SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
-    g_Object3.SetScale(0.001f); // réduit la taille du cube de /3
+    g_Object3.SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
 
     // grille de repere 3d
     g_Grid = Grid3D(100, 1.0f, g_GridShader);
@@ -265,81 +270,93 @@ bool InitOpenGL()
     }
 
     // Position de depart de ma camera
-    g_Camera.setPosition(glm::vec3(5.0f, 5.0f, 20.5f)); // déplace la caméra 3 fois plus loin que la position du cube
+    g_Camera.setPosition(glm::vec3(5.0f, 5.0f, 20.5f)); // deplace la caméra 3 fois plus loin que la position du cube
     g_Camera.setPitch(-15.0f);
 
     return true;
 }
 
-void DrawObject(Object3D &pObject)
+void DrawObject(Object3D &pObject, Shader& pShader)
 {
-    Shader lShader = pObject.GetShader();
     // Utilisation du shader
-    lShader.use();
+    pShader.use();
 
-    std::string shaderName = lShader.getName();
+    std::string shaderName = pShader.getName();
     if (shaderName == "basic")
     {
-        // Basic Shader - we only modify the color
-        lShader.setVec3("v_Color", glm::vec4(1.0f, 0.5f, 0.31f, 1.0f));
-        lShader.setVec3("a_Position", pObject.GetPosition());
-        lShader.setVec3("a_Color", glm::vec3(1.0f, 0.5f, 0.31f));
+        pShader.setVec4("u_Color", glm::vec4(1.0f, 0.5f, 0.31f, 1.0f));
+        pShader.setVec3("v_Color", glm::vec4(1.0f, 0.5f, 0.31f, 1.0f));
+        pShader.setVec3("a_Color", glm::vec3(1.0f, 0.5f, 0.31f));
     }
     else if (shaderName == "blinnphong")
     {
+        float temps = static_cast<float>(glfwGetTime());
+        const int32_t TIME = glGetUniformLocation(pShader.getProgramID(), "u_Time");
+        glUniform1f(TIME, temps);
+
         // BlinnPhong Shader
-        lShader.setVec3("u_ViewPosition", pObject.GetPosition());
-        lShader.setVec3("u_LightDirection", glm::vec3(1.0f, 1.0f, 1.0f));
-        lShader.setVec3("u_Material.DiffuseColor", glm::vec3(0.8f, 0.8f, 0.8f));
-        lShader.setVec3("u_Material.SpecularColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        lShader.setFloat("u_Material.Shininess", 32.0f);
-        lShader.setMat4("u_ProjectionMatrix", g_Camera.getProjectionMatrix(g_WindowSizeX, g_WindowSizeY));
-        lShader.setInt("u_TextureSampler", 0);  // Assurez-vous que la texture est liée à l'emplacement de texture 0
+        pShader.setVec3("u_ViewPosition", pObject.GetPosition());
+        pShader.setVec3("u_LightDirection", glm::vec3(1.0f, 1.0f, 1.0f));
+        pShader.setVec3("u_Material.DiffuseColor", glm::vec3(0.8f, 0.8f, 0.8f));
+        pShader.setVec3("u_Material.SpecularColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        pShader.setFloat("u_Material.Shininess", 32.0f);
+
+        pShader.setMat4("u_ViewMatrix", g_Camera.getViewMatrix());
+        pShader.setMat4("u_ProjectionMatrix", g_Camera.getProjectionMatrix(g_WindowSizeX, g_WindowSizeY));
+        glm::mat4 model = pObject.GetTransformation();
+        pShader.setMat4("model", model);
+
+        pShader.setInt("u_Sampler", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, g_Texture.GetTextureID());
     }
+
     else if (shaderName == "phong")
     {
         // Phong Shader
         glm::vec3 lightPosition = pObject.GetPosition();
-        lShader.setVec3("viewPos", g_Camera.getPosition());
-        lShader.setVec3("light.position", lightPosition);
-        lShader.setVec3("light.ambient", glm::vec3(0.1f, 0.8f, 0.1f));
-        lShader.setVec3("light.diffuse", glm::vec3(0.1f, 0.2f, 0.9f));
-        lShader.setVec3("light.specular", glm::vec3(0.3f, 0.4f, 1.0f));
-        lShader.setInt("material.diffuse", 0);
-        lShader.setInt("material.specular", 1);
-        lShader.setFloat("material.shininess", 32.0f);
-
+        pShader.setVec3("viewPos", g_Camera.getPosition());
+        pShader.setVec3("light.position", lightPosition);
+        pShader.setVec3("light.ambient", glm::vec3(0.1f, 0.8f, 0.1f));
+        pShader.setVec3("light.diffuse", glm::vec3(0.1f, 0.2f, 0.9f));
+        pShader.setVec3("light.specular", glm::vec3(0.3f, 0.4f, 1.0f));
+        pShader.setInt("material.diffuse", 0);
+        pShader.setInt("material.specular", 1);
+        pShader.setFloat("material.shininess", 32.0f);
     }
 
-    // Mise à jour de la matrice de projection
+    // Maj de la matrice de projection
     glm::mat4 projection = g_Camera.getProjectionMatrix(g_WindowSizeX, g_WindowSizeY);
-    lShader.setMat4("projection", projection);
+    pShader.setMat4("projection", projection);
 
     glm::mat4 model = pObject.GetTransformation();
+    pShader.setMat4("model", model);
+
+    // Maj de la matrice de vue de l'objet
     glm::mat4 view = g_Camera.getViewMatrix();
-
-    lShader.setMat4("model", model);
-    lShader.setMat4("view", view);
-
-    // Utilisation de la texture
-    g_Texture.UseTexture();
+    pShader.setMat4("view", view);
 
     // Dessin de l'objet
     pObject.Draw();
+
+    // Utilisation de la texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, g_Texture.GetTextureID());
 }
 
 void DrawGrid()
 {
-    // Apply transformations and camera setup
+    // Applique les transfo et la camera 
+    glm::mat4 projection = g_Camera.getProjectionMatrix(g_WindowSizeX, g_WindowSizeY);
     glm::mat4 view = g_Camera.getViewMatrix();
-    glm::mat4 projection = glm::perspective(glm::radians(g_Camera.getFov()), (float)g_WindowSizeX / (float)g_WindowSizeY, 0.1f, 100.0f);
 
-    // Draw the grid
+    // On draw la grid
     g_GridShader.use();
-    g_GridShader.setMat4("view", view);
     g_GridShader.setMat4("projection", projection);
+    g_GridShader.setMat4("view", view);
     g_Grid.drawGrid();
 }
+
 
 int main(int argc, char** argv)
 {
@@ -349,33 +366,29 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // Boucle principale de notre application
+    // Boucle principale
     while (!glfwWindowShouldClose(g_Window)) {
+        // Clears the buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glPushMatrix();
-        DrawObject(g_Object1);
-        glPopMatrix();
-
-        //glPushMatrix();
-        //DrawObject(g_Object2);
-        //glPopMatrix();
-
-        //glPushMatrix();
-        //DrawObject(g_Object3);
-        //glPopMatrix();
-
-        glPushMatrix();
         DrawGrid();
-        glPopMatrix();
 
+        // Draw premier cube + shader 1
+        DrawObject(g_Object1, g_Shader1);
+
+        // Draw second cube + shader 3 
+        DrawObject(g_Object2, g_Shader3);
+
+        // Draw troisieme object + shader 2
+        DrawObject(g_Object3, g_Shader2);
+
+        // Swap les buffers
         glfwSwapBuffers(g_Window);
+
+        // Events
         glfwPollEvents();
     }
 
-    // Destruction de la fenêtre et fin du programme
-    glfwDestroyWindow(g_Window);
     glfwTerminate();
-
     return 0;
 }

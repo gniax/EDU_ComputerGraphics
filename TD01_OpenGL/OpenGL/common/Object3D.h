@@ -12,7 +12,7 @@ class Object3D
 {
 private:
     // Ici nous aurons nos vecteurs pour stocker les données de vertex
-    // Les vecteurs vont stocker les positions, les coordonnées de texture et les normales
+    // Les vecteurs vont stocker les positions, les coords de texture et les normales
     std::vector<float> positions;
     std::vector<float> texcoords;
     std::vector<float> normals;
@@ -27,14 +27,13 @@ public:
     Object3D();
     ~Object3D();
 
-    // Cette fonction va charger l'objet à partir d'un fichier .obj
+    // harger l'objet à partir d'un .obj
     bool LoadFromFile(const std::string& filename);
 
     std::string GetType();
     glm::quat GetRotation() const;
     glm::vec3 GetPosition() const;
     Shader& GetShader();
-    void BindShader(Shader& pShader);
 
     void SetRotation(float angle, const glm::vec3& axis);
     void ResetRotation();
@@ -44,9 +43,9 @@ public:
 
     const glm::mat4& GetTransformation() const;
 
-    // Cette fonction va dessiner l'objet à l'écran
+    // dessiner l'objet
     void Draw();
 
-    // Cette fonction va libérer la mémoire utilisée par l'objet
+    // libérer la mémoire
     void Destroy();
 };

@@ -14,9 +14,9 @@ void Grid3D::generateGrid(int size, float scale)
 {
     float halfSize = size / 2.0f;
     for (int i = -halfSize; i <= halfSize; i++) {
-        vertices.push_back(glm::vec3(i * scale, 0, -halfSize * scale)); // Line 1
+        vertices.push_back(glm::vec3(i * scale, 0, -halfSize * scale));
         vertices.push_back(glm::vec3(i * scale, 0, halfSize * scale));
-        vertices.push_back(glm::vec3(-halfSize * scale, 0, i * scale)); // Line 2
+        vertices.push_back(glm::vec3(-halfSize * scale, 0, i * scale));
         vertices.push_back(glm::vec3(halfSize * scale, 0, i * scale));
     }
 
@@ -37,8 +37,9 @@ void Grid3D::generateGrid(int size, float scale)
 
 void Grid3D::drawGrid()
 {
-    shader.use();
     glBindVertexArray(vao);
     glDrawArrays(GL_LINES, 0, vertices.size());
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

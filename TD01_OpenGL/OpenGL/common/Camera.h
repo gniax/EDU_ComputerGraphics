@@ -6,7 +6,7 @@ class Camera {
 public:
     Camera();
 
-    // Met à jour la matrice de vue en utilisant les valeurs actuelles de position de la caméra, direction de la caméra, vecteur haut.
+    // Met à jour la matrice de vue en utilisant les valeurs actuelles de position de la caméra
     void updateViewMatrix();
 
     glm::mat4 getViewMatrix() const;

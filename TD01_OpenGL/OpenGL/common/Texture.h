@@ -8,7 +8,8 @@ public:
     Texture(const std::string& fileLoc);
 
     bool LoadTexture();
-    bool LoadTextureA(); // For alpha textures
+    bool LoadTextureA(); // alpha textures
+    GLuint GetTextureID();
     void UseTexture();
     void ClearTexture();
 

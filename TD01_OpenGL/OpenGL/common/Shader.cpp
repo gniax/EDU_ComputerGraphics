@@ -29,7 +29,7 @@ std::string Shader::getName() {
 }
 
 void Shader::use() {
-    glUseProgram(m_Program);
+    glUseProgram(this->m_Program);
 }
 
 void Shader::setVec3(const std::string& name, const glm::vec3& value) {
@@ -140,13 +140,14 @@ void Shader::setMat4(const std::string& name, const glm::mat4& mat) {
 
 bool Shader::Create() {
     m_Program = glCreateProgram();
-    glAttachShader(m_Program, m_VertexShader);
-    glAttachShader(m_Program, m_FragmentShader);
 
-    // Définir les indices des attributs de shader
+    // definir les indices des attributs de shader
     glBindAttribLocation(m_Program, 0, "position");
     glBindAttribLocation(m_Program, 1, "normal");
     glBindAttribLocation(m_Program, 2, "texcoord");
+
+    glAttachShader(m_Program, m_VertexShader);
+    glAttachShader(m_Program, m_FragmentShader);
 
     glLinkProgram(m_Program);
 

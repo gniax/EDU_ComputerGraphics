@@ -33,14 +33,14 @@ glm::vec3 Camera::getRight() const
 }
 
 glm::mat4 Camera::getProjectionMatrix(int width, int height) {
-    // Use the current fov value to create a perspective matrix
+    // utiliser le fov pour la perspective matrix
     return glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
 }
 
 void Camera::zoom(float pAmount)
 {
     fov -= pAmount;
-    fov = glm::clamp(fov, 1.0f, 45.0f); // limit fov to between 1 and 45 degrees
+    fov = glm::clamp(fov, 1.0f, 45.0f); // limite le fov entre 1 et 45 deg
 }
 
 float Camera::getPitch() const
@@ -95,7 +95,6 @@ void Camera::rotate(float deltaYaw, float deltaPitch)
     yaw += deltaYaw;
     pitch += deltaPitch;
 
-    // Restrict pitch to avoid flips
     if (pitch > 89.0f)
         pitch = 89.0f;
     if (pitch < -89.0f)
